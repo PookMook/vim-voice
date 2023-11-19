@@ -1,6 +1,6 @@
 import speech_recognition as sr
 from pocketsphinx import LiveSpeech
-from pynput.keyboard import Controller
+from pynput.keyboard import Key, Controller
 import time
 
 # Create a Controller object from pynput.keyboard
@@ -8,8 +8,6 @@ keyboard = Controller()
 
 # Create a LiveSpeech object
 speech = LiveSpeech()
-
-s2t_active = False
 
 mic_name = 'HDA Intel PCH: ALC1150 Analog (hw:1,0)'
 mic_list = sr.Microphone.list_microphone_names()
@@ -22,9 +20,11 @@ print('DEVICE >>')
 print(mic_name)
 print(device_id)
 
+s2t_active = False
+s2t_spelling = False
 
 def parse_phrase(phrase):
-    global s2t_active
+    global s2t_active, s2t_spelling
     for word in phrase.split():
         if(s2t_active == False):
             if word == "listen":
@@ -35,7 +35,94 @@ def parse_phrase(phrase):
                 print("stopped")
                 s2t_active = False
             else:
-                type_word(word)
+                if s2t_spelling == True:
+                    if word == "exit":
+                        print("end spelling")
+                        s2t_spelling = False
+                    else:
+                        spell_word(word)
+                elif word == "spell":
+                    print("spelling")
+                    s2t_spelling = True
+                else:
+                    type_word(word)
+
+def spell_word(word):
+    military_alphabet = {
+        "alpha": "a",
+        "bravo": "b",
+        "charlie": "c",
+        "delta": "d",
+        "echo": "e",
+        "foxtrot": "f",
+        "golf": "g",
+        "hotel": "h",
+        "india": "I",
+        "juliet": "j",
+        "kilo": "k",
+        "lima": "l",
+        "mike": "m",
+        "november": "n",
+        "Oscar": "o",
+        "papa": "p",
+        "quebec": "q",
+        "romeo": "r",
+        "sierra": "s",
+        "tango": "t",
+        "uniform": "u",
+        "victor": "v",
+        "whiskey": "w",
+        "x-ray": "x",
+        "yankee": "y",
+        "zulu": "z",
+        "space": " ",
+        "paren": "()",
+        "bracket": "[]",
+        "curly": "{}",
+        "coma": ",",
+        "dot": ".",
+        "quote": "\"",
+        "tick": "'",
+        "column": ":",
+        "semi": ";",
+        "bang": "!",
+        "at": "@",
+        "pound": "#",
+        "dollar": "$",
+        "percent": "%",
+        "caret": "^",
+        "amp": "&",
+        "start": "*",
+        "dash": "-",
+        "underscore": "_",
+        "plus": "+",
+        "equal": "=",
+        "pipe": "|",
+        "question": "?",
+        "slash": "/",
+        "less": "<",
+        "greater": ">",
+        "backslash": "\\",
+        "enter": "\n",
+        "tilde": "~",
+        "back": "`",
+        "one": "1",
+        "two": "2",
+        "three": "3",
+        "four": "4",
+        "five": "5",
+        "six": "6",
+        "seven": "7",
+        "eight": "8",
+        "nine": "9",
+        "zero": "0"
+    }
+    if word == "escape":
+        print("press escape")
+        keyboard.press(Key.esc)
+    else:
+        print("keypess: " + military_alphabet.get(word, "unknown"))
+        keyboard.type(military_alphabet.get(word, ""))
 
 def type_word(word):
         keyboard.type(word)
