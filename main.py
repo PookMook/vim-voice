@@ -35,19 +35,23 @@ def parse_phrase(phrase):
                 print("stopped")
                 s2t_active = False
             else:
-                if s2t_spelling == True:
-                    if word == "exit":
-                        print("end spelling")
-                        s2t_spelling = False
-                    else:
-                        spell_word(word)
-                elif word == "spell":
-                    print("spelling")
-                    s2t_spelling = True
-                else:
-                    type_word(word)
+                control_spell(word)
 
-def spell_word(word):
+def control_spell(word):
+   global s2t_spelling
+   if s2t_spelling == True:
+      if word == "exit":
+         print("end spelling")
+         s2t_spelling = False
+      else:
+         spell(word)
+   elif word == "spell":
+      print("spelling")
+      s2t_spelling = True
+   else:
+      type_word(word)
+
+def spell(word):
     military_alphabet = {
         "alpha": "a",
         "bravo": "b",
