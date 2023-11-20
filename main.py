@@ -22,18 +22,24 @@ print(device_id)
 
 s2t_active = False
 s2t_spelling = False
+s2t_uppercase = False
 
 def parse_phrase(phrase):
-    global s2t_active, s2t_spelling
     for word in phrase.split():
-        if(s2t_active == False):
-            if word == "listen":
-                print("listening")
-                s2t_active = True;
+        control_listen(word)
+
+def control_listen(word):
+    global s2t_active, s2t_uppercase
+    if(s2t_active == False):
+        if word == "listen":
+            print("listening")
+            s2t_active = True;
         else:
             if word == "stop":
                 print("stopped")
                 s2t_active = False
+            elif word == "uppercase":
+                s2t_uppercase = True
             else:
                 control_spell(word)
 
@@ -52,6 +58,7 @@ def control_spell(word):
       type_word(word)
 
 def spell(word):
+    global s2t_uppercase
     military_alphabet = {
         "alpha": "a",
         "bravo": "b",
@@ -67,7 +74,7 @@ def spell(word):
         "lima": "l",
         "mike": "m",
         "november": "n",
-        "Oscar": "o",
+        "oscar": "o",
         "papa": "p",
         "quebec": "q",
         "romeo": "r",
@@ -126,7 +133,11 @@ def spell(word):
         keyboard.press(Key.esc)
     else:
         print("keypess: " + military_alphabet.get(word, "unknown"))
-        keyboard.type(military_alphabet.get(word, ""))
+        char = military_alphabet.get(word, "")
+        if s2t_uppercase == True and char != "":
+            char = char.upper()
+            s2t_uppercase = False
+        keyboard.type(char)
 
 def type_word(word):
         keyboard.type(word)
