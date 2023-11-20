@@ -140,6 +140,9 @@ def spell(word):
         keyboard.type(char)
 
 def type_word(word):
+        global s2t_uppercase
+        if s2t_uppercase == True:
+            word = word.title()
         keyboard.type(word)
         keyboard.press(' ')
         keyboard.release(' ')
