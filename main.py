@@ -23,35 +23,40 @@ print(device_id)
 s2t_active = False
 s2t_spelling = False
 s2t_uppercase = False
+s2t_escape = False
+s2t_escape_word = "maria"
 
 def parse_phrase(phrase):
     for word in phrase.split():
         control_listen(word)
 
 def control_listen(word):
-    global s2t_active, s2t_uppercase
+    global s2t_active, s2t_uppercase, s2t_escape, s2t_escape_word
     if(s2t_active == False):
-        if word == "listen":
+        if word == s2t_escape_word and s2t_escape == False:
+            print("escaping")
+            s2t_escape = True
+        if word == "listen" and s2t_escape == False:
             print("listening")
             s2t_active = True;
         else:
-            if word == "stop":
+            if word == "stop" and s2t_escape == False:
                 print("stopped")
                 s2t_active = False
-            elif word == "uppercase":
+            elif word == "uppercase" and s2t_escape == False:
                 s2t_uppercase = True
             else:
                 control_spell(word)
 
 def control_spell(word):
-   global s2t_spelling
+   global s2t_spelling, s2t_escape
    if s2t_spelling == True:
-      if word == "exit":
+      if word == "exit" and s2t_escape == False:
          print("end spelling")
          s2t_spelling = False
       else:
          spell(word)
-   elif word == "spell":
+   elif word == "spell" and s2t_escape == False:
       print("spelling")
       s2t_spelling = True
    else:
@@ -140,9 +145,11 @@ def spell(word):
         keyboard.type(char)
 
 def type_word(word):
-        global s2t_uppercase
+        global s2t_uppercase, s2t_escape
         if s2t_uppercase == True:
             word = word.title()
+            s2t_uppercase = False
+        s2t_escape = False
         keyboard.type(word)
         keyboard.press(' ')
         keyboard.release(' ')
