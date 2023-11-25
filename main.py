@@ -28,25 +28,42 @@ s2t_escape_word = "maria"
 
 def parse_phrase(phrase):
     for word in phrase.split():
-        control_listen(word)
+        print("parsing " + word)
+        return control_listen(word) \
+            or control_spell(word) \
+            or type_word(word)
 
 def control_listen(word):
     global s2t_active, s2t_uppercase, s2t_escape, s2t_escape_word
+    if word == s2t_escape_word and s2t_escape == False:
+        print("escaping")
+        cleanup_global()
+        s2t_escape = True
+        return "escape"
     if(s2t_active == False):
-        if word == s2t_escape_word and s2t_escape == False:
-            print("escaping")
-            s2t_escape = True
         if word == "listen" and s2t_escape == False:
             print("listening")
+            cleanup_global()
             s2t_active = True;
+            return "listen"
         else:
-            if word == "stop" and s2t_escape == False:
-                print("stopped")
-                s2t_active = False
-            elif word == "uppercase" and s2t_escape == False:
-                s2t_uppercase = True
-            else:
-                control_spell(word)
+            return "no-op"
+    else:
+        if word == "stay" and s2t_escape == False:
+            print("stopped")
+            cleanup_global()
+            s2t_active = False
+            return "stopped"
+        elif word == "uppercase" and s2t_escape == False:
+            cleanup_global()
+            s2t_uppercase = True
+            return "uppercase"
+             
+def cleanup_global():
+    global s2t_escape, s2t_uppercase
+    s2t_uppercase = False
+    s2t_escape = False
+
 
 def control_spell(word):
    global s2t_spelling, s2t_escape
@@ -54,18 +71,21 @@ def control_spell(word):
       if word == "exit" and s2t_escape == False:
          print("end spelling")
          s2t_spelling = False
+         return "exit spelling"
       else:
-         spell(word)
-   elif word == "spell" and s2t_escape == False:
-      print("spelling")
-      s2t_spelling = True
-   else:
-      type_word(word)
+         return spell(word)
+   elif word == "spelling" and s2t_escape == False:
+        print("spelling")
+        cleanup_global()
+        s2t_spelling = True
+        return "spelling"
+        
 
 def spell(word):
     global s2t_uppercase
     military_alphabet = {
         "alpha": "a",
+        "armor": "a",
         "bravo": "b",
         "charlie": "c",
         "delta": "d",
@@ -73,16 +93,20 @@ def spell(word):
         "foxtrot": "f",
         "golf": "g",
         "hotel": "h",
-        "india": "I",
+        "india": "i",
         "juliet": "j",
         "kilo": "k",
         "lima": "l",
+        "limo": "l",
         "mike": "m",
+        "many": "m",
         "november": "n",
         "oscar": "o",
         "papa": "p",
+        "pee": "p",
         "quebec": "q",
         "romeo": "r",
+        "romero": "r",
         "sierra": "s",
         "tango": "t",
         "uniform": "u",
@@ -143,6 +167,7 @@ def spell(word):
             char = char.upper()
             s2t_uppercase = False
         keyboard.type(char)
+        return "Char "+ char
 
 def type_word(word):
         global s2t_uppercase, s2t_escape
@@ -150,11 +175,13 @@ def type_word(word):
             word = word.title()
             s2t_uppercase = False
         s2t_escape = False
+        print("typing " + word)
         keyboard.type(word)
         keyboard.press(' ')
         keyboard.release(' ')
+        return "typed " + word
         # Pause for a while to simulate typing speed
-        time.sleep(0.1)
+        # time.sleep(0.1)
 
 r = sr.Recognizer()
 with sr.Microphone(device_index = device_id, sample_rate = 44100, chunk_size = 512) as source:
